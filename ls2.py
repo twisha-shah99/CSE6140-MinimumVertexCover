@@ -1,11 +1,22 @@
+# This file contains code for a local search algorithm to solve the
+# Minimum Vertex Cover (MVC) problem.
+#
+# It uses a stochastic local search approach (NuMVC) with a 2-approximation
+# for initialization and randomized greedy restarts to explore diverse solutions.
+#
+# Unlike pure hill climbing, the algorithm allows non-improving moves and uses
+# heuristics such as dscore, loss, and vertex age to guide add/remove operations
+# and escape local optima.
+#
+# The algorithm iteratively improves the solution within a given time cutoff,
+# maintaining edge coverage information and tracking the best vertex cover found,
+# along with a trace of improvements over time.
+
 import random
 import time
-
 import approx
 
-# ---------------------------------------------------------------------------
-# Randomised greedy initial cover (top-k random selection)
-# ---------------------------------------------------------------------------
+# Randomised greedy initial cover used during restart (top-k random selection)
 def _rand_greedy_cover(n, adj, rng, k=3):
     uncovered = set()
     for u in range(1, n + 1):
@@ -34,11 +45,10 @@ def _rand_greedy_cover(n, adj, rng, k=3):
     return cover
 
 
-# ---------------------------------------------------------------------------
 # NuMVC inner loop
 # Runs until time.time() >= slice_end.
 # Returns (best_cover_set, best_size, trace_entries_with_absolute_timestamps)
-# ---------------------------------------------------------------------------
+
 def _numvc(n, adj, vertex_edges, clean, m, init_cover, slice_end, rng):
     is_in_cover     = [0] * (n + 1)
     edge_cov_cnt = [0] * m
@@ -145,19 +155,17 @@ def _numvc(n, adj, vertex_edges, clean, m, init_cover, slice_end, rng):
     return best_cov, best_size, trace
 
 
-# ---------------------------------------------------------------------------
 # Main entry point
-# ---------------------------------------------------------------------------
 def solve(n, edges, cutoff, seed):
     """
     NuMVC + randomised-greedy restarts for Minimum Vertex Cover.
 
     Parameters
     ----------
-    n       : number of vertices (1-indexed)
+    n       : number of vertices
     edges   : list of (u, v) tuples
     cutoff  : wall-clock time limit in seconds
-    seed    : random seed (fully reproducible)
+    seed    : random seed (for reproducibility)
 
     Returns
     -------
@@ -168,7 +176,7 @@ def solve(n, edges, cutoff, seed):
     start = time.time()
     end   = start + cutoff
 
-    # ---- Build structures -------------------------------------------
+    # Build structures 
     adj          = [[] for _ in range(n + 1)]
     vertex_edges = [[] for _ in range(n + 1)]
     clean        = []
@@ -193,11 +201,14 @@ def solve(n, edges, cutoff, seed):
     restart = 0
     while time.time() < end:
         k    = 1 if restart == 0 else 3
-        # inside the restart loop:
+
+        # 2-approx for first restart based on the approx.py code 
         if restart == 0:
-            init = set(approx.solve(n, clean))   # 2-approx for first restart
+            init = set(approx.solve(n, clean)) 
+
+        # Randomised greedy for diversity  
         else:
-            init = _rand_greedy_cover(n, adj, rng, k=3)  # randomised greedy for diversity
+            init = _rand_greedy_cover(n, adj, rng, k=3)  
 
         slice_end = min(time.time() + TIME_SLICE, end)
 

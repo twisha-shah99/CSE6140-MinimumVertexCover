@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 """
-QRTD and SQD plots for large1 and large12, LS1 and LS2 — 8 plots total.
+QRTD and SQD plots for large1 and large12 for LS1 and LS2 Algorithms
 
-Expected trace file locations
+Trace file locations
 ------------------------------
 LS1:  final_outputs/LS1_seeds/large/large1_LS1_25_<seed>.trace   (cutoff=25s)
 LS2:  final_outputs/LS2_seeds/large/large1_LS2_25_<seed>.trace  (cutoff=25s)
 
 Each trace file has lines:  elapsed_time  cover_size
-Only improvements are logged, so each line is strictly better than the last.
 
 QRTD (Qualified Run-Time Distribution):
-  x-axis : run-time (log scale)
+  x-axis : run-time
   y-axis : P(finding cover with rel_err ≤ q within time t)
   curves : one per quality threshold q
 
@@ -24,19 +23,20 @@ SQD (Solution Quality Distribution):
 import os
 import numpy as np
 import matplotlib
-matplotlib.use("Agg")          # works without a display; remove if you want pop-up
+matplotlib.use("Agg")       
 import matplotlib.pyplot as plt
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 
-# ── Configuration ─────────────────────────────────────────────────────────────
+# Values obtained based on out files
 
 REF = {
     "large1":  3303,
     "large12": 1438,
 }
 
-SEEDS = list(range(1, 21))   # seeds 1 … 20
+#For seed 1 to 20
+SEEDS = list(range(1, 21))
 
 ALG_CFG = {
     "LS1": {
@@ -60,11 +60,10 @@ Q_THRESHOLDS = [
     (0.050, "5%"),
 ]
 
-# Time cutoffs for SQD curves (LS1 and LS2 have different scales)
+# Time cutoffs for SQD curves
 TC_LS1 = [1, 3, 5, 10, 15, 20, 25]    # seconds (≤ 25s cutoff)
 TC_LS2 = [1, 3, 5, 10, 15, 20, 25]    # seconds (≤ 25s cutoff)
 
-# ── I/O helpers ───────────────────────────────────────────────────────────────
 
 def read_trace(path):
     """Return list of (elapsed_time, cover_size) from a trace file."""
@@ -103,8 +102,7 @@ def best_cover_at(trace, t_limit):
     return best
 
 
-# ── QRTD computation ──────────────────────────────────────────────────────────
-
+#QRTD Calculation
 def compute_qrtd(traces, ref, time_pts, q_values):
     """
     For each quality threshold q and each time point t:
@@ -118,7 +116,7 @@ def compute_qrtd(traces, ref, time_pts, q_values):
 
     result = {}
     for q in q_values:
-        target = ref * (1.0 + q)      # cover size threshold
+        target = ref * (1.0 + q)      
         probs  = []
         for t in time_pts:
             count = sum(
@@ -130,7 +128,7 @@ def compute_qrtd(traces, ref, time_pts, q_values):
     return result
 
 
-# ── SQD computation ───────────────────────────────────────────────────────────
+# SQD Calculation
 
 def compute_sqd(traces, ref, q_pts, time_cutoffs):
     """
@@ -155,7 +153,7 @@ def compute_sqd(traces, ref, q_pts, time_cutoffs):
     return result
 
 
-# ── Plot helpers ──────────────────────────────────────────────────────────────
+#Plotting functions
 
 def draw_qrtd(ax, qrtd, time_pts, q_labels, title, n_runs):
     colors = plt.cm.viridis(np.linspace(0.1, 0.9, len(q_labels)))
@@ -185,9 +183,6 @@ def draw_sqd(ax, sqd, q_pts, tc_labels, title, n_runs):
     ax.set_title(f"{title}\n({n_runs} seeds)", fontsize=9, fontweight="bold")
     ax.legend(fontsize=7, loc="lower right")
     ax.grid(True, alpha=0.3, linestyle="--")
-
-
-# ── Box plot helpers ──────────────────────────────────────────────────────────
 
 def collect_box_data(alg, inst):
     """Return (rel_errors, times_to_best) lists across all seeds at cutoff."""
@@ -254,8 +249,6 @@ def draw_boxplots(instances, algs):
         ax.set_title(title, fontsize=12, fontweight="bold")
         ax.grid(True, axis="y", alpha=0.35, linestyle="--")
         ax.tick_params(axis="x", labelsize=9)
-
-        # Add n= annotation below each box
         for i, d in enumerate(data, start=1):
             ax.text(i, ax.get_ylim()[0], f"n={len(d)}",
                     ha="center", va="bottom", fontsize=7, color="gray")
@@ -267,8 +260,7 @@ def draw_boxplots(instances, algs):
         plt.close(fig)
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
-
+#Main entry point
 def main():
     instances = ["large1", "large12"]
     algs      = ["LS1", "LS2"]
@@ -326,7 +318,7 @@ def main():
         fig.savefig(out, dpi=150, bbox_inches="tight")
         print(f"Saved → {out}")
 
-    # Also save each subplot individually for the report
+    # Save each subplot individually
     subplot_cfg = [
         (fig_q, axes_q, "qrtd"),
         (fig_s, axes_s, "sqd"),
@@ -336,20 +328,17 @@ def main():
     for fig, axes, kind in subplot_cfg:
         for row, inst in enumerate(inst_names):
             for col, alg in enumerate(alg_names):
-                ext   = fig.get_axes()[0].get_figure()  # shared figure
+                ext   = fig.get_axes()[0].get_figure()  
                 fname = f"{kind}_{alg}_{inst}.png"
                 out   = os.path.join(BASE, fname)
-                # Export via bbox of individual axes
                 bbox = axes[row, col].get_tightbbox(
                     fig.canvas.get_renderer()
                 ).transformed(fig.dpi_scale_trans.inverted())
                 fig.savefig(out, dpi=150, bbox_inches=bbox)
                 print(f"Saved → {out}")
 
-    # ---- Box plots ----
+    #Box Plots
     draw_boxplots(instances, algs)
-
-    print("\nDone — 8 individual plots + 2 combined figures + 2 box plots written.")
 
 
 if __name__ == "__main__":
