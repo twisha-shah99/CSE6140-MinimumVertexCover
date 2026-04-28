@@ -1,0 +1,86 @@
+
+=== LS1 | test | cutoff=2s | seeds 1..20 (20 runs) ===
+Instance       AvgTimeToBest(s)   AvgCover    Ref   RelErr
+----------------------------------------------------------
+test1                      0.00       2.00      2     0.00
+test2                      0.00       3.00      3     0.00
+test3                      0.00       5.00      5     0.00
+test4                      0.00       7.00      7     0.00
+test5                      0.00       7.00      7     0.00
+
+=== LS1 | small | cutoff=2s | seeds 1..20 (20 runs) ===
+Instance       AvgTimeToBest(s)   AvgCover    Ref   RelErr
+----------------------------------------------------------
+small1                     0.00      21.00     21     0.00
+small2                     0.00      20.00     20     0.00
+small3                     0.00      20.00     20     0.00
+small4                     0.00      20.00     20     0.00
+small5                     0.00      21.00     21     0.00
+small6                     0.00      20.00     20     0.00
+small7                     0.00      20.00     20     0.00
+small8                     0.00      19.00     19     0.00
+small9                     0.00      21.00     21     0.00
+small10                    0.00      21.00     21     0.00
+small11                    0.00      21.00     21     0.00
+small12                    0.00      20.00     20     0.00
+small13                    0.00      21.00     21     0.00
+small14                    0.00      21.00     21     0.00
+small15                    0.00      21.00     21     0.00
+small16                    0.00      20.00     20     0.00
+small17                    0.00      14.00     14     0.00
+small18                    0.23     158.05    158     0.00
+
+=== LS1 | large | cutoff=25s | seeds 1..20 (20 runs) ===
+Instance       AvgTimeToBest(s)   AvgCover    Ref   RelErr
+----------------------------------------------------------
+large1                     8.07    3337.25   3303     0.01
+large2                     5.75     596.60    594     0.00
+large3                     7.07    2227.75   2203     0.01
+large4                     7.07    3944.85   3926     0.00
+large5                     6.73    1000.00   1000     0.00
+large6                     6.70     980.00    980     0.00
+large7                     4.63    1933.10   1917     0.01
+large8                     5.54    1816.20   1785     0.02
+large9                     1.25     791.75    790     0.00
+large10                    3.79     933.45    933     0.00
+large11                    1.85     991.40    989     0.00
+large12                    4.61    1445.60   1438     0.01
+
+=== SUMMARY ===
+Dataset  Instance       AvgTimeToBest(s)   AvgCover    Ref   RelErr
+------------------------------------------------------------------
+test     test1                      0.00       2.00      2     0.00
+test     test2                      0.00       3.00      3     0.00
+test     test3                      0.00       5.00      5     0.00
+test     test4                      0.00       7.00      7     0.00
+test     test5                      0.00       7.00      7     0.00
+small    small1                     0.00      21.00     21     0.00
+small    small2                     0.00      20.00     20     0.00
+small    small3                     0.00      20.00     20     0.00
+small    small4                     0.00      20.00     20     0.00
+small    small5                     0.00      21.00     21     0.00
+small    small6                     0.00      20.00     20     0.00
+small    small7                     0.00      20.00     20     0.00
+small    small8                     0.00      19.00     19     0.00
+small    small9                     0.00      21.00     21     0.00
+small    small10                    0.00      21.00     21     0.00
+small    small11                    0.00      21.00     21     0.00
+small    small12                    0.00      20.00     20     0.00
+small    small13                    0.00      21.00     21     0.00
+small    small14                    0.00      21.00     21     0.00
+small    small15                    0.00      21.00     21     0.00
+small    small16                    0.00      20.00     20     0.00
+small    small17                    0.00      14.00     14     0.00
+small    small18                    0.23     158.05    158     0.00
+large    large1                     8.07    3337.25   3303     0.01
+large    large2                     5.75     596.60    594     0.00
+large    large3                     7.07    2227.75   2203     0.01
+large    large4                     7.07    3944.85   3926     0.00
+large    large5                     6.73    1000.00   1000     0.00
+large    large6                     6.70     980.00    980     0.00
+large    large7                     4.63    1933.10   1917     0.01
+large    large8                     5.54    1816.20   1785     0.02
+large    large9                     1.25     791.75    790     0.00
+large    large10                    3.79     933.45    933     0.00
+large    large11                    1.85     991.40    989     0.00
+large    large12                    4.61    1445.60   1438     0.01
