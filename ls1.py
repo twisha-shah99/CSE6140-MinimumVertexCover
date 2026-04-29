@@ -1,3 +1,8 @@
+# ls1.py — Local Search 1: Simulated Annealing for Minimum Vertex Cover
+# Warm-starts from the greedy 2-approximation, then runs SA with energy:
+#   E = |cover| + PENALTY * |uncovered edges|
+# Usage: python3 mvc.py -inst <instance> -alg LS1 -time <cutoff> -seed <seed>
+
 import math
 import random
 import time
@@ -14,6 +19,19 @@ def solve(
     cutoff: float,
     seed: int,
 ) -> Tuple[List[int], List[Tuple[float, int]]]:
+    """
+    Parameters
+    ----------
+    n       : number of vertices (labeled 1..n)
+    edges   : list of (u, v) undirected edges
+    cutoff  : time limit in seconds
+    seed    : random seed for reproducibility
+
+    Returns
+    -------
+    best_cover : sorted vertex indices of the best valid cover found
+    trace      : list of (elapsed_seconds, cover_size) on each improvement
+    """
     random.seed(seed)
     start_time = time.time()
     m = len(edges)
@@ -21,35 +39,35 @@ def solve(
     if m == 0:
         return [], []
 
-    # inc[v] = list of edge indices incident to v
+    # inc[v] = indices of edges incident to v (for O(deg) flips)
     inc: List[List[int]] = [[] for _ in range(n + 1)]
     for i, (u, v) in enumerate(edges):
         inc[u].append(i)
         inc[v].append(i)
 
-    # Warm-start from the approx 2-approximation
+    # Warm-start from the greedy 2-approximation
     init_cover = _approx.solve(n, edges)
     in_cover = [False] * (n + 1)
     for v in init_cover:
         in_cover[v] = True
 
-    # edge_cover_count[i] = number of cover endpoints in edge i (0, 1, or 2)
+    # edge_cover_count[i] = number of cover endpoints for edge i (0, 1, or 2)
     edge_cover_count = [0] * m
     for i, (u, v) in enumerate(edges):
         edge_cover_count[i] = int(in_cover[u]) + int(in_cover[v])
 
-    uncovered_count = 0  # approx produces a valid cover
+    uncovered_count = 0
     cover_size = len(init_cover)
 
     best_cover = list(init_cover)
     best_size = cover_size
     trace: List[Tuple[float, int]] = [(0.0, best_size)]
 
-    # --- SA hyper-parameters ---
-    PENALTY = 3
-    T0 = 1.0
-    T_MIN = 1e-3
-    CHECK_INTERVAL = 500  # iterations between time checks
+    # SA hyper-parameters
+    PENALTY = 3        # penalty weight for uncovered edges in the energy function
+    T0 = 1.0           # initial temperature
+    T_MIN = 1e-3       # stopping temperature
+    CHECK_INTERVAL = 500  # iterations between time/temperature checks
 
     T = T0
     iteration = 0
@@ -58,12 +76,12 @@ def solve(
         if iteration % CHECK_INTERVAL == 0:
             elapsed = time.time() - start_time
             if elapsed >= cutoff or T <= T_MIN:
-                break               
-            # Geometric schedule: T = T0 * (T_MIN/T0)^(elapsed/cutoff)
+                break
+            # Exponential cooling: T(t) = T0 * (T_MIN/T0)^(t/cutoff)
             frac = elapsed / cutoff
             T = T0 * math.exp(frac * math.log(T_MIN / T0))
 
-        # --- Pick a random vertex to flip ---
+        # Propose a random vertex flip
         vtx = random.randint(1, n)
 
         if in_cover[vtx]:
